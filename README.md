@@ -2,6 +2,12 @@
 
 Native iPhone and iPad window for Fun coding agent. One Grok chat: login, thread, thinking, Send Now, and the queue. Agent and tools live in Rust (`fun-core` / [fun-coding-agent-gui-core](https://github.com/swimming-bookstore/fun-coding-agent-gui-core)); SwiftUI is only the window.
 
+<p align="center">
+  <img src="docs/screenshots/chat.png" alt="Chat tab" width="280">
+  &nbsp;
+  <img src="docs/screenshots/settings.png" alt="Settings tab" width="280">
+</p>
+
 ```
 ios/           SwiftUI app + Generated bindings
 ```
@@ -27,3 +33,10 @@ On a device those paths are under the app sandbox (`HOME`). Simulator builds sha
 Depends on `fun-core` and `provider-grok` from https://github.com/swimming-bookstore/fun-coding-agent, and on https://github.com/swimming-bookstore/fun-coding-agent-gui-core (not a local checkout).
 
 `python3 scripts/record-demo.py` writes `demo/demo.mp4` (needs `fun login`, Xcode, iOS Simulator, and a live Grok session).
+
+## Screenshots
+
+| Chat | Settings |
+| --- | --- |
+| Thread, thinking dock, Send Now, queue, and composer | Log in or out of Grok |
+| ![Chat](docs/screenshots/chat.png) | ![Settings](docs/screenshots/settings.png) |
