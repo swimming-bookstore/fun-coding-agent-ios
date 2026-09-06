@@ -89,7 +89,7 @@ private struct SettingsView: View {
                     Button("Log In to Grok", action: viewModel.loginGrok)
                 }
             }
-            .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
