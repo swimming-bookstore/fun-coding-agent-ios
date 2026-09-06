@@ -1,0 +1,10 @@
+xcuserdata/
+DerivedData/
+*.xcuserstate
+.DS_Store
+
+/ios/Fun/Generated/
+/.gui-core/
+/.demo-derived/
+/demo/record.log
+/demo/raw.mov
