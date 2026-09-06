@@ -28,6 +28,12 @@ final class FunViewModel: ObservableObject {
 
     func start() {
         guard app == nil else { return }
+        let home = dataRoot()
+        let workspace = home.appendingPathComponent("workspace", isDirectory: true)
+        try? FileManager.default.createDirectory(at: workspace, withIntermediateDirectories: true)
+        setenv("HOME", home.path, 1)
+        setenv("XDG_CONFIG_HOME", home.appendingPathComponent(".config").path, 1)
+        setenv("XDG_DATA_HOME", home.appendingPathComponent(".local/share").path, 1)
         let path = ProcessInfo.processInfo.environment["PATH"] ?? ""
         let extra = "/usr/bin:/bin:/usr/sbin:/sbin"
         setenv("PATH", path.isEmpty ? extra : "\(path):\(extra)", 1)
@@ -36,10 +42,29 @@ final class FunViewModel: ObservableObject {
         self.app = app
         self.bridge = bridge
         app.start(delegate: bridge)
-        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+        app.addFolder(workspace: workspace.path)
+        app.openRoom(workspace: workspace.path)
+    }
+
+    /// Simulator reinstalls wipe the sandbox; keep data on the host Mac.
+    /// Device builds stay in Application Support.
+    private func dataRoot() -> URL {
+        #if targetEnvironment(simulator)
+        let macHome = ProcessInfo.processInfo.environment["SIMULATOR_HOST_HOME"]
+            ?? ProcessInfo.processInfo.environment["HOME"]
+            ?? NSHomeDirectory()
+        let home = URL(fileURLWithPath: macHome, isDirectory: true)
+            .appendingPathComponent(".local/share/fun-ios", isDirectory: true)
+        try? FileManager.default.createDirectory(at: home, withIntermediateDirectories: true)
+        return home
+        #else
+        let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? URL(fileURLWithPath: NSHomeDirectory(), isDirectory: true)
-        try? FileManager.default.createDirectory(at: docs, withIntermediateDirectories: true)
-        app.addFolder(workspace: docs.path)
+                .appendingPathComponent("Library/Application Support")
+        let home = support.appendingPathComponent("fun", isDirectory: true)
+        try? FileManager.default.createDirectory(at: home, withIntermediateDirectories: true)
+        return home
+        #endif
     }
 
     func stop() {
