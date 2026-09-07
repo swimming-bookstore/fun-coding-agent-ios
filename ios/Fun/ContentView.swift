@@ -47,13 +47,21 @@ struct ContentView: View {
 
 private struct ChatView: View {
     @ObservedObject var viewModel: FunViewModel
+    @State private var showChats = false
 
     var body: some View {
         NavigationStack {
             ThreadView(viewModel: viewModel)
-                .navigationTitle(viewModel.snapshot.title.isEmpty ? "Fun" : viewModel.snapshot.title)
+                .navigationTitle(chatTitle)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            showChats = true
+                        } label: {
+                            Label("Chats", systemImage: "list.bullet")
+                        }
+                    }
                     ToolbarItem(placement: .principal) {
                         Text(viewModel.snapshot.usage)
                             .font(.caption)
@@ -73,7 +81,79 @@ private struct ChatView: View {
                         }
                     }
                 }
+                .sheet(isPresented: $showChats) {
+                    ChatListView(viewModel: viewModel, isPresented: $showChats)
+                        .onAppear { viewModel.reloadChats() }
+                }
         }
+    }
+
+    private var chatTitle: String {
+        if let title = viewModel.chats.first(where: { $0.path == viewModel.currentChatPath })?.title, !title.isEmpty {
+            return title
+        }
+        return viewModel.snapshot.title.isEmpty ? "Fun" : viewModel.snapshot.title
+    }
+}
+
+private struct ChatListView: View {
+    @ObservedObject var viewModel: FunViewModel
+    @Binding var isPresented: Bool
+
+    var body: some View {
+        NavigationStack {
+            List {
+                if viewModel.chats.isEmpty {
+                    Text("No chats yet.")
+                        .foregroundStyle(.secondary)
+                }
+                ForEach(viewModel.chats) { chat in
+                    Button {
+                        viewModel.openChat(chat.path)
+                        isPresented = false
+                    } label: {
+                        HStack(alignment: .top, spacing: 10) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(chat.title)
+                                    .foregroundStyle(.primary)
+                                    .lineLimit(1)
+                                Text(chat.preview)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(2)
+                            }
+                            Spacer(minLength: 0)
+                            if chat.path == viewModel.currentChatPath {
+                                Image(systemName: "checkmark")
+                                    .foregroundStyle(Color.accentColor)
+                            }
+                        }
+                    }
+                }
+                .onDelete { offsets in
+                    let chats = viewModel.chats
+                    for i in offsets where chats.indices.contains(i) {
+                        viewModel.removeChat(chats[i].path)
+                    }
+                }
+            }
+            .navigationTitle("Chats")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Close") { isPresented = false }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        viewModel.newChat()
+                        isPresented = false
+                    } label: {
+                        Label("New Chat", systemImage: "square.and.pencil")
+                    }
+                }
+            }
+        }
+        .presentationDetents([.medium, .large])
     }
 }
 
