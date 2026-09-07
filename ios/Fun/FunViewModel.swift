@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-struct ChatSession: Identifiable, Hashable {
+struct ChatSession: Identifiable {
     var id: String { path }
     let path: String
     let title: String
@@ -29,7 +29,7 @@ final class FunViewModel: ObservableObject {
     )
     @Published var draft: String = ""
     @Published var chats: [ChatSession] = []
-    @Published private(set) var currentChatPath = ""
+    @Published private(set) var currentChatPath: String?
 
     private var app: FunApp?
     private var bridge: DelegateBridge?
@@ -59,7 +59,14 @@ final class FunViewModel: ObservableObject {
         app.addFolder(workspace: workspace.path)
         app.openRoom(workspace: workspace.path)
         reloadChats()
-        currentChatPath = chats.first?.path ?? ""
+        currentChatPath = chats.first?.path
+    }
+
+    var currentTitle: String {
+        if let title = chats.first(where: { $0.path == currentChatPath })?.title, !title.isEmpty {
+            return title
+        }
+        return snapshot.title.isEmpty ? "Fun" : snapshot.title
     }
 
     /// Simulator reinstalls wipe the sandbox; keep data on the host Mac.
@@ -105,8 +112,10 @@ final class FunViewModel: ObservableObject {
 
     func abort() { app?.abort() }
     func newChat() {
+        let known = Set(chats.map(\.path))
         app?.newChat()
-        currentChatPath = ""
+        reloadChats()
+        currentChatPath = chats.first { !known.contains($0.path) }?.path
     }
     func loginGrok() { app?.loginGrok() }
     func logoutGrok() { app?.logoutGrok() }
@@ -142,9 +151,7 @@ final class FunViewModel: ObservableObject {
             if let next = ChatStore.load(home: home, workspace: workspacePath).first {
                 openChat(next.path)
             } else {
-                currentChatPath = ""
-                app?.newChat()
-                reloadChats()
+                newChat()
             }
         } else {
             reloadChats()
@@ -163,8 +170,8 @@ final class FunViewModel: ObservableObject {
         snapshot = snap
         if finished {
             reloadChats()
-            if currentChatPath.isEmpty {
-                currentChatPath = chats.first?.path ?? ""
+            if currentChatPath == nil {
+                currentChatPath = chats.first?.path
             }
         }
         if let login = snap.login, !login.openUrl.isEmpty, login.userCode != lastOpenedCode {

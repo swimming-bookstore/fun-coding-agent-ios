@@ -52,7 +52,7 @@ private struct ChatView: View {
     var body: some View {
         NavigationStack {
             ThreadView(viewModel: viewModel)
-                .navigationTitle(chatTitle)
+                .navigationTitle(viewModel.currentTitle)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
@@ -86,13 +86,6 @@ private struct ChatView: View {
                         .onAppear { viewModel.reloadChats() }
                 }
         }
-    }
-
-    private var chatTitle: String {
-        if let title = viewModel.chats.first(where: { $0.path == viewModel.currentChatPath })?.title, !title.isEmpty {
-            return title
-        }
-        return viewModel.snapshot.title.isEmpty ? "Fun" : viewModel.snapshot.title
     }
 }
 
