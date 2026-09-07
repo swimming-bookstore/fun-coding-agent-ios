@@ -108,32 +108,25 @@ private struct ChatListView: View {
                         .foregroundStyle(.secondary)
                 }
                 ForEach(viewModel.chats) { chat in
-                    Button {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(chat.title)
+                            .foregroundStyle(.primary)
+                            .lineLimit(1)
+                        Text(chat.preview)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
                         viewModel.openChat(chat.path)
                         isPresented = false
-                    } label: {
-                        HStack(alignment: .top, spacing: 10) {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(chat.title)
-                                    .foregroundStyle(.primary)
-                                    .lineLimit(1)
-                                Text(chat.preview)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(2)
-                            }
-                            Spacer(minLength: 0)
-                            if chat.path == viewModel.currentChatPath {
-                                Image(systemName: "checkmark")
-                                    .foregroundStyle(Color.accentColor)
-                            }
-                        }
                     }
-                }
-                .onDelete { offsets in
-                    let chats = viewModel.chats
-                    for i in offsets where chats.indices.contains(i) {
-                        viewModel.removeChat(chats[i].path)
+                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                        Button("Delete", role: .destructive) {
+                            viewModel.removeChat(chat.path)
+                        }
                     }
                 }
             }
