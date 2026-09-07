@@ -1,6 +1,6 @@
 # Fun coding agent iOS
 
-Native iPhone and iPad window for Fun coding agent. One Grok chat: login, thread, thinking, Send Now, and the queue. Agent and tools live in Rust (`fun-core` / [fun-coding-agent-gui-core](https://github.com/swimming-bookstore/fun-coding-agent-gui-core)); SwiftUI is only the window.
+Native iPhone and iPad window for Fun coding agent. One workspace (the app container): login, chats, thread, thinking, Send Now, and the queue. Agent and tools live in Rust (`fun-core` / [fun-coding-agent-gui-core](https://github.com/swimming-bookstore/fun-coding-agent-gui-core)); SwiftUI is only the window. iOS cannot open folders; New Chat creates another session in the same container, listed from the left-side Chats menu.
 
 <p align="center">
   <img src="docs/screenshots/chat.png" alt="Chat tab" width="280">
@@ -28,7 +28,7 @@ Uses the same config, auth, and sessions as `fun`:
 - Auth: `~/.local/share/fun/auth.json`
 - Sessions: `~/.local/share/fun/sessions/`
 
-On a device those paths are under the app sandbox (`HOME`). Simulator builds share the host login when `HOME` matches. Log in from the account menu; the chat uses the app Documents folder as its workspace.
+On a device those paths are under the app sandbox (`HOME`). Simulator builds share the host login when `HOME` matches. Log in from Settings; every chat uses the same sandbox workspace. Tap Chats on the left to switch or delete older sessions.
 
 Depends on `fun-core` and `provider-grok` from https://github.com/swimming-bookstore/fun-coding-agent, and on https://github.com/swimming-bookstore/fun-coding-agent-gui-core (not a local checkout).
 
