@@ -108,21 +108,24 @@ private struct ChatListView: View {
                         .foregroundStyle(.secondary)
                 }
                 ForEach(viewModel.chats) { chat in
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(chat.title)
-                            .foregroundStyle(.primary)
-                            .lineLimit(1)
-                        Text(chat.preview)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(2)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .contentShape(Rectangle())
-                    .onTapGesture {
+                    let selected = chat.path == viewModel.currentChatPath
+                    Button {
                         viewModel.openChat(chat.path)
                         isPresented = false
+                    } label: {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(chat.title)
+                                .fontWeight(selected ? .semibold : .regular)
+                                .foregroundStyle(.primary)
+                                .lineLimit(1)
+                            Text(chat.preview)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(2)
+                        }
                     }
+                    .listRowBackground(selected ? Color(uiColor: .tertiarySystemFill) : nil)
+                    .accessibilityAddTraits(selected ? .isSelected : [])
                     .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                         Button("Delete", role: .destructive) {
                             viewModel.removeChat(chat.path)
